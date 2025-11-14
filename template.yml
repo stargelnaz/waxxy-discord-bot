@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  DiscordPublicKey:
+    Type: String
+    Description: Discord Public Key
+  WaxRpcUrl:
+    Type: String
+    Default: https://wax.greymass.com
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x
+
+Resources:
+  DiscordBotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: handler.handler
+      Environment:
+        Variables:
+          DISCORD_PUBLIC_KEY: !Ref DiscordPublicKey
+          WAX_RPC_URL: !Ref WaxRpcUrl
+      Events:
+        DiscordInteractions:
+          Type: Api
+          Properties:
+            Path: /interactions
+            Method: post
+
+Outputs:
+  ApiUrl:
+    Description: 'API Gateway endpoint URL'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/interactions'

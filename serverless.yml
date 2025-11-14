@@ -1,0 +1,27 @@
+service: waxxy-discord-bot
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    DISCORD_PUBLIC_KEY: ${env:DISCORD_PUBLIC_KEY}
+    WAX_RPC_URL: ${env:WAX_RPC_URL}
+
+functions:
+  discordBot:
+    handler: dist/handler.handler
+    events:
+      - http:
+          path: /interactions
+          method: post
+          cors: true
+
+package:
+  patterns:
+    - '!./**'
+    - './dist/**'
+    - 'node_modules/**'
+
+plugins:
+  - serverless-plugin-typescript
