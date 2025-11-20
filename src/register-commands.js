@@ -1,7 +1,15 @@
 const axios = require('axios');
+require('dotenv').config(); // <-- make sure this is here
 
 const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+
+if (!DISCORD_APPLICATION_ID || !DISCORD_BOT_TOKEN) {
+  console.error(
+    'Missing DISCORD_APPLICATION_ID or DISCORD_BOT_TOKEN in environment.'
+  );
+  process.exit(1);
+}
 
 const commands = [
   {
