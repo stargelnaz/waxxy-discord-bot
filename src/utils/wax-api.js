@@ -1,14 +1,8 @@
-import axios from 'axios';
+const axios = require('axios');
 
 const WAX_RPC_URL = process.env.WAX_RPC_URL || 'https://wax.greymass.com';
 
-export interface WaxBalance {
-  contract: string;
-  symbol: string;
-  balance: string;
-}
-
-export async function getWaxBalance(wallet: string): Promise<WaxBalance[]> {
+async function getWaxBalance(wallet) {
   try {
     const response = await axios.post(WAX_RPC_URL, {
       jsonrpc: '2.0',
@@ -27,8 +21,10 @@ export async function getWaxBalance(wallet: string): Promise<WaxBalance[]> {
       ]
     });
 
-    const rows = response.data?.result?.rows || [];
-    const balances: WaxBalance[] = [];
+    const rows =
+      (response.data && response.data.result && response.data.result.rows) ||
+      [];
+    const balances = [];
 
     for (const row of rows) {
       if (row.balance) {
@@ -43,12 +39,15 @@ export async function getWaxBalance(wallet: string): Promise<WaxBalance[]> {
 
     return balances;
   } catch (error) {
-    console.error('Error fetching WAX balance:', error);
+    console.error(
+      'Error fetching WAX balance:',
+      error?.response?.data || error.message || error
+    );
     throw new Error('Failed to fetch WAX balance');
   }
 }
 
-export async function getKeikiBalance(wallet: string): Promise<WaxBalance> {
+async function getKeikiBalance(wallet) {
   try {
     const response = await axios.post(WAX_RPC_URL, {
       jsonrpc: '2.0',
@@ -65,7 +64,9 @@ export async function getKeikiBalance(wallet: string): Promise<WaxBalance> {
       ]
     });
 
-    const rows = response.data?.result?.rows || [];
+    const rows =
+      (response.data && response.data.result && response.data.result.rows) ||
+      [];
 
     for (const row of rows) {
       if (row.balance) {
@@ -74,7 +75,8 @@ export async function getKeikiBalance(wallet: string): Promise<WaxBalance> {
           return {
             contract: 'orchidtokens',
             symbol: symbol,
-            balance: (parseFloat(amount) / 10000).toString() // Handle 4 decimal places
+            // handle 4 decimal places as in your TS version
+            balance: (parseFloat(amount) / 10000).toString()
           };
         }
       }
@@ -86,7 +88,15 @@ export async function getKeikiBalance(wallet: string): Promise<WaxBalance> {
       balance: '0'
     };
   } catch (error) {
-    console.error('Error fetching Keiki balance:', error);
+    console.error(
+      'Error fetching Keiki balance:',
+      error?.response?.data || error.message || error
+    );
     throw new Error('Failed to fetch Keiki balance');
   }
 }
+
+module.exports = {
+  getWaxBalance,
+  getKeikiBalance
+};

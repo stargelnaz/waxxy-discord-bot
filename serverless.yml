@@ -10,7 +10,7 @@ provider:
 
 functions:
   discordBot:
-    handler: dist/handler.handler
+    handler: src/handler.handler
     events:
       - http:
           path: /interactions
@@ -20,8 +20,5 @@ functions:
 package:
   patterns:
     - '!./**'
-    - './dist/**'
+    - 'src/**'
     - 'node_modules/**'
-
-plugins:
-  - serverless-plugin-typescript

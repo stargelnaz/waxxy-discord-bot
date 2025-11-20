@@ -1,7 +1,7 @@
-import axios from 'axios';
+const axios = require('axios');
 
-const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID!;
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN!;
+const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID;
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   {
@@ -46,7 +46,7 @@ async function registerCommands() {
     }
 
     console.log('All commands registered successfully!');
-  } catch (error: any) {
+  } catch (error) {
     console.error(
       'Error registering commands:',
       error.response?.data || error.message
