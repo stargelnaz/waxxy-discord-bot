@@ -9,7 +9,6 @@ function verifySignature(rawBody, signature, timestamp) {
   }
 
   try {
-    // verifyKey takes the raw body string and headers directly
     return verifyKey(rawBody, signature, timestamp, publicKey);
   } catch (err) {
     console.error('Signature verification error:', err);
