@@ -14,6 +14,15 @@ async function handler(event, context) {
     event.headers['X-Signature-Timestamp'] ||
     '';
   const rawBody = event.body || '';
+  const ok = verifySignature(rawBody, signature, timestamp);
+  console.log('Signature valid?', ok);
+
+  if (!ok) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ error: 'Invalid signature' })
+    };
+  }
 
   if (!verifySignature(rawBody, signature, timestamp)) {
     return {

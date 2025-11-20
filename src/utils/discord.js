@@ -1,19 +1,16 @@
-const nacl = require('tweetnacl');
+const { verifyKey } = require('discord-interactions');
 
 function verifySignature(rawBody, signature, timestamp) {
   const publicKey = process.env.DISCORD_PUBLIC_KEY;
 
   if (!publicKey || !signature || !timestamp) {
-    console.error('Missing signature verification fields.');
+    console.error('Missing DISCORD_PUBLIC_KEY, signature, or timestamp.');
     return false;
   }
 
-  const message = Buffer.from(timestamp + rawBody);
-  const sig = Buffer.from(signature, 'hex');
-  const key = Buffer.from(publicKey, 'hex');
-
   try {
-    return nacl.sign.detached.verify(message, sig, key);
+    // verifyKey takes the raw body string and headers directly
+    return verifyKey(rawBody, signature, timestamp, publicKey);
   } catch (err) {
     console.error('Signature verification error:', err);
     return false;
@@ -25,7 +22,7 @@ function createResponse(content, ephemeral = false) {
     type: 4, // ChannelMessageWithSource
     data: {
       content,
-      flags: ephemeral ? 64 : 0 // 64 = ephemeral messages
+      flags: ephemeral ? 64 : 0
     }
   };
 }
