@@ -35,6 +35,18 @@ const commands = [
         required: false
       }
     ]
+  },
+  {
+    name: 'guides',
+    description: 'Show Orchid Hunter guides on AtomicHub'
+  },
+  {
+    name: 'beasts',
+    description: 'Show Orchid Hunter beasts on AtomicHub'
+  },
+  {
+    name: 'vehicles',
+    description: 'Show Orchid Hunter vehicles on AtomicHub'
   }
 ];
 

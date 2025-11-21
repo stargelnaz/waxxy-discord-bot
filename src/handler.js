@@ -53,6 +53,12 @@ async function handler(event, context) {
         return await handleWaxCommand(interaction);
       case 'keiki':
         return await handleKeikiCommand(interaction);
+      case 'guides':
+        return await handleGuidesCommand(interaction);
+      case 'beasts':
+        return await handleBeastsCommand(interaction);
+      case 'vehicles':
+        return await handleVehiclesCommand(interaction);
       default:
         return {
           statusCode: 400,
@@ -129,6 +135,42 @@ async function handleKeikiCommand(interaction) {
       )
     };
   }
+}
+
+// Helper to build AtomicHub embed responses
+function buildMarketResponse(schema, label, emoji) {
+  const url = `https://wax.atomichub.io/market?collection_name=orchidhunter&schema_name=${schema}#sales`;
+
+  const response = {
+    type: 4, // channel message with source
+    data: {
+      content: `${emoji} You do not have any ${label.toLowerCase()} registered. To purchase, use the link below.`,
+      embeds: [
+        {
+          title: `Buy ${label} on AtomicHub`,
+          description: `Click here to view ${label.toLowerCase()} on AtomicHub.`,
+          url
+        }
+      ]
+    }
+  };
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(response)
+  };
+}
+
+async function handleGuidesCommand(interaction) {
+  return buildMarketResponse('guides', 'Guides', '📘');
+}
+
+async function handleBeastsCommand(interaction) {
+  return buildMarketResponse('beasts', 'Beasts', '🐾');
+}
+
+async function handleVehiclesCommand(interaction) {
+  return buildMarketResponse('vehicles', 'Vehicles', '🚙');
 }
 
 exports.handler = handler;
