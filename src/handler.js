@@ -1,3 +1,4 @@
+const https = require('https');
 const { verifySignature, createResponse } = require('./utils/discord');
 const { getWaxBalance, getKeikiBalance } = require('./utils/wax-api');
 
@@ -53,6 +54,8 @@ async function handler(event, context) {
         return await handleWaxCommand(interaction);
       case 'keiki':
         return await handleKeikiCommand(interaction);
+      case 'guide-test': // renamed slash command
+        return await handleGuideCommand(interaction);
       case 'guides':
         return await handleGuidesCommand(interaction);
       case 'beasts':
@@ -131,6 +134,101 @@ async function handleKeikiCommand(interaction) {
       body: JSON.stringify(
         createResponse(
           '❌ Failed to fetch Keiki balance. Please try again later.'
+        )
+      )
+    };
+  }
+}
+
+/**
+ * Simple HTTPS GET helper returning parsed JSON.
+ */
+function httpGetJson(url) {
+  return new Promise((resolve, reject) => {
+    https
+      .get(url, (res) => {
+        let data = '';
+
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        res.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            resolve(json);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
+  });
+}
+
+/**
+ * Check if a wallet owns at least one Drylands Guide.
+ * Collection: orchidhunter
+ * Template ID: 758752
+ */
+async function checkDrylandsGuideOwnership(wallet) {
+  const baseUrl = 'https://wax.api.atomicassets.io/atomicassets/v1/assets';
+  const url =
+    `${baseUrl}?collection_name=orchidhunter` +
+    `&template_id=758752` +
+    `&owner=${encodeURIComponent(wallet)}` +
+    `&limit=1`;
+
+  const result = await httpGetJson(url);
+  const assets = (result && result.data) || [];
+  return Array.isArray(assets) && assets.length > 0;
+}
+
+async function handleGuideCommand(interaction) {
+  const options = (interaction.data && interaction.data.options) || [];
+  const walletOption = options.find((opt) => opt.name === 'wallet');
+  const wallet = (walletOption && walletOption.value) || 'amfr2.wam';
+
+  try {
+    const hasGuide = await checkDrylandsGuideOwnership(wallet);
+
+    if (hasGuide) {
+      const response = createResponse(
+        `🌿 Wallet **${wallet}** owns at least one **Drylands Guide** (template \`758752\`).`
+      );
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response)
+      };
+    }
+
+    // If they don't own it, give them a market link for that template
+    const marketUrl =
+      'https://wax.atomichub.io/market?collection_name=orchidhunter&template_id=758752#sales';
+
+    const response = {
+      type: 4,
+      data: {
+        content:
+          `❌ Wallet **${wallet}** does not currently own a **Drylands Guide**.\n` +
+          `You can look for one on AtomicHub:\n${marketUrl}`
+      }
+    };
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(response)
+    };
+  } catch (error) {
+    console.error('Error in guide command:', error);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(
+        createResponse(
+          '❌ Failed to check Drylands Guide ownership. Please try again later.'
         )
       )
     };

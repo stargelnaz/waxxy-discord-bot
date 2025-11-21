@@ -1,5 +1,5 @@
 const axios = require('axios');
-require('dotenv').config(); // <-- make sure this is here
+require('dotenv').config();
 
 const DISCORD_APPLICATION_ID = process.env.DISCORD_APPLICATION_ID;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -37,6 +37,18 @@ const commands = [
     ]
   },
   {
+    name: 'guide-test',
+    description: 'Check if a wallet owns the Drylands Guide NFT',
+    options: [
+      {
+        type: 3, // STRING
+        name: 'wallet',
+        description: 'WAX wallet address (default: amfr2.wam)',
+        required: false
+      }
+    ]
+  },
+  {
     name: 'guides',
     description: 'Show Orchid Hunter guides on AtomicHub'
   },
@@ -52,6 +64,7 @@ const commands = [
 
 async function registerCommands() {
   try {
+    // Bulk overwrite global application commands
     const url = `https://discord.com/api/v10/applications/${DISCORD_APPLICATION_ID}/commands`;
 
     const headers = {
@@ -59,13 +72,11 @@ async function registerCommands() {
       'Content-Type': 'application/json'
     };
 
-    for (const command of commands) {
-      const response = await axios.post(url, command, { headers });
-      console.log(`Registered command: ${command.name}`);
-      console.log('Response:', response.data);
-    }
+    // One PUT with the full array instead of many POSTs
+    const response = await axios.put(url, commands, { headers });
 
-    console.log('All commands registered successfully!');
+    console.log('Registered commands successfully:');
+    console.log(response.data.map((c) => c.name));
   } catch (error) {
     console.error(
       'Error registering commands:',
