@@ -162,15 +162,15 @@ function buildMarketResponse(schema, label, emoji) {
 }
 
 async function handleGuidesCommand(interaction) {
-  return buildMarketResponse('guides', 'Guides', '📘');
+  return buildMarketResponse('guides', 'Guides', '👤');
 }
 
 async function handleBeastsCommand(interaction) {
-  return buildMarketResponse('beasts', 'Beasts', '🐾');
+  return buildMarketResponse('beasts', 'Beasts', '🐺');
 }
 
 async function handleVehiclesCommand(interaction) {
-  return buildMarketResponse('vehicles', 'Vehicles', '🚙');
+  return buildMarketResponse('vehicles', 'Vehicles', '🚣🏾‍♀️');
 }
 
 exports.handler = handler;
